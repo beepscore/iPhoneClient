@@ -15,7 +15,7 @@
 // Ref Dalrymple Advanced Mac OS X Programming Ch 19 p 465
 // Ref http://stackoverflow.com/questions/25746/whats-the-difference-between-a-string-constant-and-a-string-literal
 NSString* const kServiceTypeString = @"_uwcelistener._tcp.";
-NSString* const kSearchDomain = @"";
+NSString* const kSearchDomain = @"local.";
 #define kTimeoutSeconds 5.0
 
 #pragma mark properties
@@ -145,6 +145,8 @@ NSString* const kSearchDomain = @"";
     // Ref Dalrymple Advanced Mac OS X Programming Ch 19 p 467
     browser_ = [[NSNetServiceBrowser alloc] init];
     [browser_ setDelegate:self];
+    
+    services_ = [[NSMutableArray alloc] init];
     
     [self startServiceSearch];
 }
