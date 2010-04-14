@@ -203,9 +203,13 @@ NSString* const kSearchDomain = @"local.";
 	NSNetService* selectedService = [services_ objectAtIndex:indexPath.row];
 	
 	// <ADD SOME CODE HERE : 
-	// if the selection was not resolved, try to resolve it again, but don't attempt
-	// to bring up the details >
+	// if the selection was not resolved, 
+    // try to resolve it again, but don't attempt to bring up the details > 
     
+    // if selectedService has not resolved, addresses == nil.
+    // if selectedService has not resolved, port == -1?
+    // addresses array contains NSData objects, each NSData object contains a sockaddr structure.
+    // Each sockaddr has a port.  Do they all have the same port?
     if (nil == [selectedService addresses])
     {
         // timeout is in seconds
