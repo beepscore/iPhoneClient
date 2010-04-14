@@ -189,8 +189,11 @@ NSString* const kSearchDomain = @"local.";
 		cell.textLabel.text = [service hostName];
 	}
 	
-	cell.detailTextLabel.text = [service name]; 
-	
+    NSString* cellDetailString = [[NSString alloc] initWithFormat:@"%@. Port %d", 
+                                                            [service name], [service port]];
+	cell.detailTextLabel.text = cellDetailString; 
+	[cellDetailString release];
+    
     return cell;
 }
 

@@ -105,8 +105,12 @@
 		
 	// < ADD CODE HERE : Get the message from the view and write it out to the
 	//  outputStream_. You can do a synchronous write >
+    
     NSString* messageText = messageTextView_.text;
-	
+    
+	NSLog(@"in sendMessage: messageText = %@", messageText);
+    
+    
 	const uint8_t*	messageBuffer = (const uint8_t*)[messageText UTF8String];
 	NSUInteger		length = [messageText lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
 	[outputStream_ write:messageBuffer maxLength:length];    
