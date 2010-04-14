@@ -12,9 +12,11 @@
 
 @implementation RootViewController
 
+// Ref Dalrymple Advanced Mac OS X Programming Ch 19 p 465
 // Ref http://stackoverflow.com/questions/25746/whats-the-difference-between-a-string-constant-and-a-string-literal
-NSString* const kServiceTypeString = @"bs._tcp";
-NSString* const kSearchDomain = @"local.";
+NSString* const kServiceTypeString = @"_uwcelistener._tcp.";
+NSString* const kSearchDomain = @"";
+#define kTimeoutSeconds 5.0
 
 #pragma mark properties
 
@@ -29,14 +31,13 @@ NSString* const kSearchDomain = @"local.";
 
 - (void)viewDidUnload
 {
-	// <ADD SOME CODE HERE : Create the service browser and start looking for services>
 }
 
 
 - (void)dealloc
 {
 	[services_ release], services_ = nil;
-
+    
     [super dealloc];
 }
 
@@ -53,7 +54,7 @@ NSString* const kSearchDomain = @"local.";
     // Ref http://stackoverflow.com/questions/166712/how-to-show-the-loading-indicator-in-the-top-status-bar
     UIApplication* app = [UIApplication sharedApplication];
     app.networkActivityIndicatorVisible = YES;
-
+    
     [browser_ searchForServicesOfType:kServiceTypeString inDomain:kSearchDomain];
 }
 
@@ -63,13 +64,19 @@ NSString* const kSearchDomain = @"local.";
                moreComing:(BOOL)moreComing 
 {
     NSLog(@"Adding new service");
+    [services_ addObject:aNetService];
     
-    if (!moreComing) {
+	[aNetService setDelegate:self];
+	// timeout is in seconds
+    [aNetService resolveWithTimeout:kTimeoutSeconds];
+	
+    if (!moreComing)
+	{
+        // update user interface
+        [self.tableView reloadData];        
         UIApplication* app = [UIApplication sharedApplication];
         app.networkActivityIndicatorVisible = NO;
-
     }
-
 }
 
 
@@ -77,8 +84,29 @@ NSString* const kSearchDomain = @"local.";
          didRemoveService:(NSNetService *)aNetService 
                moreComing:(BOOL)moreComing 
 {
+    // Ref Dalrymple Advanced Mac OS X Programming Ch 19 p 468
     NSLog(@"Removing service");
-	
+    NSEnumerator *enumerator = [services_ objectEnumerator];
+    NSNetService *currentNetService;
+    
+    // ????: Why doesn't Dalrymple just remove aNetService?
+    // could aNetService not have been in services_?
+    while (currentNetService = [enumerator nextObject]) {
+        if ([[currentNetService name] isEqual:[aNetService name]] &&
+            [[currentNetService type] isEqual:[aNetService type]] &&
+            [[currentNetService domain] isEqual:[aNetService domain]]) {
+            [services_ removeObject:currentNetService];
+            break;
+        }
+    }
+    
+    if (!moreComing)
+	{
+        // update user interface
+        [self.tableView reloadData];        
+        UIApplication* app = [UIApplication sharedApplication];
+        app.networkActivityIndicatorVisible = NO;
+    }	
 }
 
 
@@ -91,6 +119,7 @@ NSString* const kSearchDomain = @"local.";
 - (void)netServiceDidResolveAddress:(NSNetService *)sender
 {
 	NSLog(@"RESOLVED net service with name %@ and type %@", [sender name], [sender type]);
+	[self.tableView reloadData];
 }
 
 
@@ -98,7 +127,8 @@ NSString* const kSearchDomain = @"local.";
 {
 	NSLog(@"DID NOT RESOLVE net service with name %@ and type %@", [sender name], [sender type]);
 	NSLog(@"Error Dict:", [errorDict description]);
-	
+    
+	// ????: should we do anything else?
 }
 
 
@@ -109,10 +139,13 @@ NSString* const kSearchDomain = @"local.";
 {
     [super viewDidLoad];
     
-    // Ref Dalrymple Ch 19 p 467
+	// SB moved comment from viewDidUnload
+    // <ADD SOME CODE HERE : Create the service browser and start looking for services>
+    
+    // Ref Dalrymple Advanced Mac OS X Programming Ch 19 p 467
     browser_ = [[NSNetServiceBrowser alloc] init];
     [browser_ setDelegate:self];
-
+    
     [self startServiceSearch];
 }
 
@@ -170,12 +203,19 @@ NSString* const kSearchDomain = @"local.";
 	// <ADD SOME CODE HERE : 
 	// if the selection was not resolved, try to resolve it again, but don't attempt
 	// to bring up the details >
-	
-    ServiceDetailController* detailController = [[ServiceDetailController alloc] initWithNibName:@"ServiceDetailController" bundle:nil];
-	
-	detailController.service = selectedService;
-    [[self navigationController] pushViewController:detailController animated:YES];
-    [detailController release];	
+    
+    if (nil == [selectedService addresses])
+    {
+        // timeout is in seconds
+        [selectedService resolveWithTimeout:kTimeoutSeconds];
+    } else
+    {
+        ServiceDetailController* detailController = [[ServiceDetailController alloc] initWithNibName:@"ServiceDetailController" bundle:nil];
+        
+        detailController.service = selectedService;
+        [[self navigationController] pushViewController:detailController animated:YES];
+        [detailController release];	
+    }
 }
 
 
