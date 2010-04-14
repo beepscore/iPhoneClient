@@ -12,6 +12,12 @@
 
 @implementation RootViewController
 
+// Ref http://stackoverflow.com/questions/25746/whats-the-difference-between-a-string-constant-and-a-string-literal
+NSString* const kServiceTypeString = @"bs._tcp";
+NSString* const kSearchDomain = @"local.";
+
+#pragma mark properties
+
 
 #pragma mark -
 #pragma mark Memory management
@@ -29,7 +35,8 @@
 
 - (void)dealloc
 {
-	[services_ release];
+	[services_ release], services_ = nil;
+
     [super dealloc];
 }
 
@@ -40,18 +47,31 @@
 // < YOU NEED TO MAKE ALL THESE METHODS DO THE RIGHT THING >
 
 - (void) startServiceSearch
-{
-	
-	NSLog(@"Started browsing for services: %@", browser_);	
+{	
+	NSLog(@"Started browsing for services: %@", browser_);
+    
+    // Ref http://stackoverflow.com/questions/166712/how-to-show-the-loading-indicator-in-the-top-status-bar
+    UIApplication* app = [UIApplication sharedApplication];
+    app.networkActivityIndicatorVisible = YES;
+
+    [browser_ searchForServicesOfType:kServiceTypeString inDomain:kSearchDomain];
 }
+
 
 - (void)netServiceBrowser:(NSNetServiceBrowser *)aNetServiceBrowser 
            didFindService:(NSNetService *)aNetService 
                moreComing:(BOOL)moreComing 
 {
     NSLog(@"Adding new service");
+    
+    if (!moreComing) {
+        UIApplication* app = [UIApplication sharedApplication];
+        app.networkActivityIndicatorVisible = NO;
+
+    }
 
 }
+
 
 - (void)netServiceBrowser:(NSNetServiceBrowser *)aNetServiceBrowser 
          didRemoveService:(NSNetService *)aNetService 
@@ -60,6 +80,7 @@
     NSLog(@"Removing service");
 	
 }
+
 
 - (void)netServiceWillResolve:(NSNetService *)sender
 {
@@ -72,6 +93,7 @@
 	NSLog(@"RESOLVED net service with name %@ and type %@", [sender name], [sender type]);
 }
 
+
 - (void)netService:(NSNetService *)sender didNotResolve:(NSDictionary *)errorDict
 {
 	NSLog(@"DID NOT RESOLVE net service with name %@ and type %@", [sender name], [sender type]);
@@ -80,18 +102,19 @@
 }
 
 
-
-
 #pragma mark -
 #pragma mark View lifecycle
-
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	
-}
+    
+    // Ref Dalrymple Ch 19 p 467
+    browser_ = [[NSNetServiceBrowser alloc] init];
+    [browser_ setDelegate:self];
 
+    [self startServiceSearch];
+}
 
 
 #pragma mark -
@@ -154,8 +177,6 @@
     [[self navigationController] pushViewController:detailController animated:YES];
     [detailController release];	
 }
-
-
 
 
 @end

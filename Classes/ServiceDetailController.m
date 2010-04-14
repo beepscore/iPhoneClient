@@ -83,7 +83,7 @@
 #pragma mark -
 #pragma mark Actions
 
-- (IBAction)	sendMessage:(id)sender
+- (IBAction)sendMessage:(id)sender
 {
 	if ( outputStream_ == nil )
 	{

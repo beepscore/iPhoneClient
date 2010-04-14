@@ -10,10 +10,12 @@
 
 @interface RootViewController : UITableViewController
 {
-
+#pragma mark Instance variables
     NSNetServiceBrowser*	browser_;
-	NSMutableArray*			services_;	
-
+	NSMutableArray*			services_;
 }
+
+#pragma mark Properties
+
 
 @end
