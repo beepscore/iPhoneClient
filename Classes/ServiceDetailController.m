@@ -8,7 +8,6 @@
 
 #import "ServiceDetailController.h"
 
-
 @interface ServiceDetailController ()
 - (void) connectToService;
 @end
@@ -18,7 +17,6 @@
 @synthesize	service = service_;
 @synthesize statusLabel = statusLabel_;
 @synthesize messageTextView = messageTextView_;
-
 
 - (void)viewDidLoad
 {
@@ -39,6 +37,7 @@
 {
     [super didReceiveMemoryWarning];
 }
+
 
 - (void)viewDidUnload
 {
@@ -61,6 +60,7 @@
     [super dealloc];
 }
 
+
 #pragma mark - 
 #pragma mark Service
 
@@ -71,13 +71,11 @@
 	// < ADD CODE HERE : get the output stream from the service >
     
     [service_ getInputStream:NULL outputStream:&outputStream_];
-
 	
     // if we wanted, we could scheduled notifcations or other run loop
 	// based reading of the input stream to get messages back from the
 	// service we connected to
-	
-    
+	    
     // < ADD CODE HERE : statusLabel to reflect if we connected or not. 
     //    if we could not get the output stream, we could not connect >    
 	if ( outputStream_ != nil )
@@ -97,7 +95,7 @@
 
 - (IBAction)sendMessage:(id)sender
 {
-	if ( outputStream_ == nil )
+	if ( nil == outputStream_ )
 	{
 		statusLabel_.text = @"Failed to send message, not connected.";
 		return;
@@ -106,21 +104,28 @@
 	// < ADD CODE HERE : Get the message from the view and write it out to the
 	//  outputStream_. You can do a synchronous write >
     
-    NSString* messageText = messageTextView_.text;
-    
+    NSString* messageText = [[NSString alloc] initWithString:messageTextView_.text];    
 	NSLog(@"in sendMessage: messageText = %@", messageText);
+        
+	const uint8_t* messageBuffer = (const uint8_t*)[messageText UTF8String];
     
+    // add 1 to length to ensure null terminator is sent.  Ref Chris UW Moodle post
+	NSUInteger length = [messageText lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1;
+    [messageText release];
     
-	const uint8_t*	messageBuffer = (const uint8_t*)[messageText UTF8String];
-	NSUInteger		length = [messageText lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-	[outputStream_ write:messageBuffer maxLength:length];    
+	[outputStream_ write:messageBuffer maxLength:length];
+    // NOTE: After the user tapped the "Send Message" button, the UI was "freezing" here
+    // because a firewall on the computer running DesktopService listener was blocking communication
+    // out from the computer 
 }
+
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
 	[self sendMessage:textField];
 	return YES;
 }
+
 
 - (BOOL)textFieldShouldEndEditing:(UITextField *)textField
 {
