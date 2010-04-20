@@ -15,7 +15,8 @@
 // Ref Dalrymple Advanced Mac OS X Programming Ch 19 p 465
 // Ref http://stackoverflow.com/questions/25746/whats-the-difference-between-a-string-constant-and-a-string-literal
 NSString* const kServiceTypeString = @"_uwcelistener._tcp.";
-NSString* const kSearchDomain = @"local.";
+// NSString* const kSearchDomain = @"local.";
+NSString* const kSearchDomain = @"";
 #define kTimeoutSeconds 5.0
 
 #pragma mark properties
