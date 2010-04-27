@@ -26,10 +26,11 @@
 @property (nonatomic, retain) IBOutlet	UITextField*	messageTextView;
 
 
-- (IBAction)	sendMessage:(id)sender;
+- (IBAction)sendMessage:(id)sender;
 
-- (IBAction)	handleColor1Button:(id)sender;
-- (IBAction)	handleColor2Button:(id)sender;
-- (IBAction)	handleColor3Button:(id)sender;
+- (IBAction)handleColor1Button:(id)sender;
+- (IBAction)handleColor2Button:(id)sender;
+- (IBAction)handleColor3Button:(id)sender;
+- (IBAction)handleClearButton:(id)sender;
 
 @end

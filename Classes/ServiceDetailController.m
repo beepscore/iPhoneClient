@@ -165,4 +165,12 @@
     [messageText release];
 }
 
+- (IBAction)handleClearButton:(id)sender
+{
+    NSString* messageText = [[NSString alloc] initWithString:@"clear"];    
+    [self sendString:messageText];
+    [messageText release];
+}
+
+
 @end
