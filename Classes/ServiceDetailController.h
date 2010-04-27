@@ -28,4 +28,8 @@
 
 - (IBAction)	sendMessage:(id)sender;
 
+- (IBAction)	handleColor1Button:(id)sender;
+- (IBAction)	handleColor2Button:(id)sender;
+- (IBAction)	handleColor3Button:(id)sender;
+
 @end

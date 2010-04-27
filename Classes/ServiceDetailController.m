@@ -22,7 +22,9 @@
 {
     [super viewDidLoad];
 
-	[messageTextView_ becomeFirstResponder];
+//  ????: sb disabled
+//	[messageTextView_ becomeFirstResponder];
+    
 	messageTextView_.returnKeyType = UIReturnKeySend;
 	messageTextView_.enablesReturnKeyAutomatically = YES;
 
@@ -93,7 +95,7 @@
 #pragma mark -
 #pragma mark Actions
 
-- (IBAction)sendMessage:(id)sender
+- (IBAction)sendString:(NSString *)aString;
 {
 	if ( nil == outputStream_ )
 	{
@@ -101,22 +103,29 @@
 		return;
 	}
 		
-	// < ADD CODE HERE : Get the message from the view and write it out to the
-	//  outputStream_. You can do a synchronous write >
+	// Write aString out to the outputStream_. You can do a synchronous write
     
-    NSString* messageText = [[NSString alloc] initWithString:messageTextView_.text];    
-	NSLog(@"in sendMessage: messageText = %@", messageText);
+	NSLog(@"in sendString: aString = %@", aString);
         
-	const uint8_t* messageBuffer = (const uint8_t*)[messageText UTF8String];
+	const uint8_t* messageBuffer = (const uint8_t*)[aString UTF8String];
     
     // add 1 to length to ensure null terminator is sent.  Ref Chris UW Moodle post
-	NSUInteger length = [messageText lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1;
-    [messageText release];
+	NSUInteger length = [aString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1;
+    [aString release];
     
 	[outputStream_ write:messageBuffer maxLength:length];
     // NOTE: After the user tapped the "Send Message" button, the UI was "freezing" here
     // because a firewall on the computer running DesktopService listener was blocking communication
     // out from the computer 
+}
+
+- (IBAction)sendMessage:(id)sender
+{
+	// Get the message from the view.    
+    NSString* messageText = [[NSString alloc] initWithString:messageTextView_.text];    
+	NSLog(@"in sendMessage: messageText = %@", messageText);
+    [self sendString:messageText];
+    [messageText release];
 }
 
 
@@ -130,6 +139,30 @@
 - (BOOL)textFieldShouldEndEditing:(UITextField *)textField
 {
 	return YES;
+}
+
+
+- (IBAction)handleColor1Button:(id)sender
+{
+    NSString* messageText = [[NSString alloc] initWithString:@"color1"];    
+    [self sendString:messageText];
+    [messageText release];
+}
+
+
+- (IBAction)handleColor2Button:(id)sender
+{
+    NSString* messageText = [[NSString alloc] initWithString:@"color2"];    
+    [self sendString:messageText];
+    [messageText release];
+}
+
+
+- (IBAction)handleColor3Button:(id)sender
+{
+    NSString* messageText = [[NSString alloc] initWithString:@"color3"];    
+    [self sendString:messageText];
+    [messageText release];
 }
 
 @end
