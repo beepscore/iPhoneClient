@@ -16,21 +16,15 @@
 
 @synthesize	service = service_;
 @synthesize statusLabel = statusLabel_;
-@synthesize messageTextView = messageTextView_;
+@synthesize messageTextField = messageTextField_;
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
 
-//  ????: sb disabled
-//	[messageTextView_ becomeFirstResponder];
-    
-	messageTextView_.returnKeyType = UIReturnKeySend;
-	messageTextView_.enablesReturnKeyAutomatically = YES;
-
     // Root view controller sets detailController.service = selectedService
     // ServiceDetailController doesn't neet to alloc/init a service    
-	if (service_)
+	if ([self service])
 		[self connectToService];
 }
 
@@ -44,20 +38,25 @@
 - (void)viewDidUnload
 {
     [super viewDidUnload];
-	self.statusLabel = nil;
-	self.messageTextView = nil;
 	self.service = nil;
 	[outputStream_ close];
 	[outputStream_ release];
 	outputStream_ = nil;
+    
+    self.statusLabel = nil;
+	self.messageTextField = nil;
 }
 
 
 - (void)dealloc
 {
+    // release ivars
 	[service_ release];
-	[outputStream_ close];
+    [outputStream_ close];
 	[outputStream_ release];
+
+	[statusLabel_ release];
+	[messageTextField_ release];
 		
     [super dealloc];
 }
@@ -83,11 +82,11 @@
 	if ( outputStream_ != nil )
 	{
 		[outputStream_ open];
-		statusLabel_.text = @"Connected to service.";
+		self.statusLabel.text = @"Connected to service.";
 	}
 	else
 	{
-		statusLabel_.text = @"Could not connect to service";
+		self.statusLabel.text = @"Could not connect to service";
 	}
 }
 
@@ -99,7 +98,7 @@
 {
 	if ( nil == outputStream_ )
 	{
-		statusLabel_.text = @"Failed to send message, not connected.";
+		self.statusLabel.text = @"Failed to send message, not connected.";
 		return;
 	}
 		
@@ -111,7 +110,6 @@
     
     // add 1 to length to ensure null terminator is sent.  Ref Chris UW Moodle post
 	NSUInteger length = [aString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1;
-    [aString release];
     
 	[outputStream_ write:messageBuffer maxLength:length];
     // NOTE: After the user tapped the "Send Message" button, the UI was "freezing" here
@@ -119,19 +117,10 @@
     // out from the computer 
 }
 
-- (IBAction)sendMessage:(id)sender
-{
-	// Get the message from the view.    
-    NSString* messageText = [[NSString alloc] initWithString:messageTextView_.text];    
-	NSLog(@"in sendMessage: messageText = %@", messageText);
-    [self sendString:messageText];
-    [messageText release];
-}
-
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
-	[self sendMessage:textField];
+    [[self messageTextField] resignFirstResponder];
 	return YES;
 }
 
@@ -139,6 +128,16 @@
 - (BOOL)textFieldShouldEndEditing:(UITextField *)textField
 {
 	return YES;
+}
+
+
+- (IBAction)sendMessage:(id)sender
+{
+	// Get the message from the view.    
+    NSString* messageText = [[NSString alloc] initWithString:self.messageTextField.text];    
+	NSLog(@"in sendMessage: messageText = %@", messageText);
+    [self sendString:messageText];
+    [messageText release];
 }
 
 
@@ -171,6 +170,5 @@
     [self sendString:messageText];
     [messageText release];
 }
-
 
 @end

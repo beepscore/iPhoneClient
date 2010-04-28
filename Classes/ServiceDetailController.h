@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 
 
-@interface ServiceDetailController : UIViewController
+@interface ServiceDetailController : UIViewController <UITextFieldDelegate>
 {
 	
 	NSNetService*		service_;
@@ -17,13 +17,13 @@
 
 	
 	UILabel*			statusLabel_;
-	UITextField*		messageTextView_;
+	UITextField*		messageTextField_;
 
 }
 
 @property (nonatomic, retain)			NSNetService*	service;
 @property (nonatomic, retain) IBOutlet	UILabel*		statusLabel;
-@property (nonatomic, retain) IBOutlet	UITextField*	messageTextView;
+@property (nonatomic, retain) IBOutlet	UITextField*	messageTextField;
 
 
 - (IBAction)sendMessage:(id)sender;
